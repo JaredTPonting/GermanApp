@@ -58,3 +58,54 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+nav {
+    background-color: #333;
+    padding: 10px 20px;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    margin: 0 15px;
+}
+
+.nav-links a:hover {
+    text-decoration: underline;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+main {
+    padding: 50px;
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 15px 30px;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    border-radius: 5px;
+}
+
+.btn:hover {
+    background-color: #45a049;
+}
+

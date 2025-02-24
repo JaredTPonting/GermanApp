@@ -22,12 +22,6 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
 
-    # User loader for Flask-Login
-    from .models import User
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
-
     # User loader for Flask-Login: tells Flask-Login how to retrieve a user by ID.
     from .models import User
     @login_manager.user_loader

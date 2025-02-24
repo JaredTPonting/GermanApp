@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <nav>
+        <div class="navbar">
+            <div class="logo">MyApp</div>
+            <div class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                <a href="{{ url_for('profile') }}">Profile</a>
+            </div>
+        </div>
+    </nav>
+    <main>
+        <div class="content">
+            <h1>Your Profile</h1>
+            <p>Here you can view and update your profile information.</p>
+        </div>
+    </main>
+</body>
+</html>
