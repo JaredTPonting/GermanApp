@@ -1,8 +1,110 @@
 {% extends "base.html" %}
-
-{% block title %}Profile - German Learning App{% endblock %}
-
+{% block title %}Flash Cards{% endblock %}
 {% block content %}
-  <h1>Flashcards</h1>
-  <p>Coming soon! Here you'll be able to actually use some flashcards</p>
+<div id="flashcard-container" class="flashcard-container">
+  <div id="flashcard" class="flashcard" onclick="flipCard()">
+    <div class="front">
+      {{ card.german }}
+    </div>
+    <div class="back">
+      {{ card.translation }}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Toggle the flipped state when the card is tapped.
+  function flipCard() {
+    const cardElem = document.getElementById('flashcard');
+    cardElem.classList.toggle('flipped');
+  }
+
+  // Variables to record touch positions.
+  let touchstartX = 0;
+  let touchendX = 0;
+  const flashcard = document.getElementById('flashcard');
+
+  flashcard.addEventListener('touchstart', function(event) {
+    touchstartX = event.changedTouches[0].screenX;
+  }, false);
+
+  flashcard.addEventListener('touchend', function(event) {
+    touchendX = event.changedTouches[0].screenX;
+    handleSwipe();
+  }, false);
+
+  function handleSwipe() {
+    // Define a minimum swipe distance.
+    const swipeThreshold = 50;
+    if (touchendX < touchstartX - swipeThreshold) {
+      // Swiped left: mark as incorrect.
+      updateCard(false);
+    }
+    if (touchendX > touchstartX + swipeThreshold) {
+      // Swiped right: mark as correct.
+      updateCard(true);
+    }
+  }
+
+  // Placeholder function for updating card data.
+  function updateCard(correct) {
+    console.log("Card marked as", correct ? "correct" : "incorrect");
+    // Later, use fetch() or AJAX to send the card update to your server.
+    // For example:
+    // fetch('/learning/update_card', {
+    //   method: 'POST',
+    //   headers: {'Content-Type': 'application/json'},
+    //   body: JSON.stringify({card_id: {{ card.id }}, correct: correct})
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //    // Load next card or update UI.
+    // });
+  }
+</script>
+
+<style>
+  /* Container perspective for 3D effect */
+  .flashcard-container {
+    perspective: 1000px;
+    margin-top: 100px;  /* Adjust if needed to clear the navbar */
+  }
+
+  /* Flashcard styling */
+  .flashcard {
+    width: 300px;
+    height: 200px;
+    margin: 0 auto;
+    position: relative;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    cursor: pointer;
+  }
+
+  /* Flip the card when it has the 'flipped' class */
+  .flashcard.flipped {
+    transform: rotateY(180deg);
+  }
+
+  /* Front and back face styling */
+  .flashcard .front,
+  .flashcard .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+  }
+
+  /* Hide the back until flipped */
+  .flashcard .back {
+    transform: rotateY(180deg);
+  }
+</style>
 {% endblock %}
