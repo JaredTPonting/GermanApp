@@ -31,7 +31,9 @@ def create_app():
     # Register Blueprints
     from .routes import main_bp  # general routes
     from .auth import auth_bp  # authentication routes
+    from .learning_routes import learning_bp # learning routes
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp, url_prefix="/auth")  # auth routes will be prefixed with /auth
+    app.register_blueprint(learning_bp)
 
     return app

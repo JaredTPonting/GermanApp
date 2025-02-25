@@ -3,11 +3,27 @@
 {% block title %}Home - German Learning App{% endblock %}
 
 {% block content %}
-<div class="jumbotron">
-  <h1 class="display-4">Welcome to the German Learning App!</h1>
-  <p class="lead">Begin your journey to mastering German today.</p>
-  <hr class="my-4">
-  <p>If you already have an account, click the button below to log in.</p>
-  <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">Login</a>
-</div>
+  {% if current_user.is_authenticated %}
+    <div class="mt-4">
+      <h1>Welcome, {{ current_user.username }}!</h1>
+      <p>Get started with your German flash card practice:</p>
+      <!-- Flash Cards Card -->
+      <div class="card mt-4" style="width: 18rem;">
+        <div class="card-body">
+          <h5 class="card-title">Flash Card Learning</h5>
+          <p class="card-text">Practice your vocabulary with interactive flash cards.</p>
+          <!-- Update the route as needed -->
+          <a href="{{ url_for('learning.flashcards') }}" class="btn btn-primary">Start Flash Cards</a>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="jumbotron mt-4">
+      <h1 class="display-4">Welcome to the German Learning App!</h1>
+      <p class="lead">Begin your journey to mastering German today.</p>
+      <hr class="my-4">
+      <p>If you already have an account, click the button below to log in.</p>
+      <a class="btn btn-primary btn-lg" href="{{ url_for('auth.login') }}" role="button">Login</a>
+    </div>
+  {% endif %}
 {% endblock %}

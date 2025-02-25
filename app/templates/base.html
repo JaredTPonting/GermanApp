@@ -3,21 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <title>{% block title %}German Learning App{% endblock %}</title>
-  <!-- Include Bootstrap CSS for styling (optional but helpful) -->
+  <!-- Include Bootstrap CSS for styling -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <!-- Fixed Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
     <a class="navbar-brand" href="{{ url_for('main.home') }}">
-      <!-- Replace 'images/logo.png' with your logo's path in the static folder -->
       <img src="{{ url_for('static', filename='images/logo.png') }}" width="30" height="30" class="d-inline-block align-top" alt="Logo">
       German Learning App
     </a>
+    <!-- Toggler for mobile view -->
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ml-auto">
         {% if current_user.is_authenticated %}
+          <!-- Profile Button -->
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('main.profile') }}">Profile</a>
+          </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
           </li>
@@ -30,12 +39,12 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <div class="container mt-4 content">
+  <!-- Main Content (pushed down so it's not hidden behind the fixed navbar) -->
+  <div class="container mt-5 content">
     {% block content %}{% endblock %}
   </div>
 
-  <!-- Optional JavaScript for Bootstrap -->
+  <!-- Bootstrap JS and dependencies -->
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
