@@ -2,55 +2,154 @@
 {% block title %}Flash Cards{% endblock %}
 {% block content %}
 <div id="flashcard-container" class="flashcard-container">
-  <div id="flashcard" class="flashcard" onclick="flipCard()">
-    <div class="front">
-      {{ card.german }}
-    </div>
-    <div class="back">
-      {{ card.translation }}
+  <!-- This wrapper is used for dragging -->
+  <div id="flashcard-wrapper" class="flashcard-wrapper">
+    <!-- The inner card handles the flip animation -->
+    <div id="flashcard" class="flashcard" onclick="handleClick(event)">
+      <div class="front">
+        {{ card.german }}
+      </div>
+      <div class="back">
+        {{ card.translation }}
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-  // Toggle the flipped state when the card is tapped.
-  function flipCard() {
-    const cardElem = document.getElementById('flashcard');
-    cardElem.classList.toggle('flipped');
+  // Get references to the wrapper and card elements.
+  const wrapper = document.getElementById('flashcard-wrapper');
+  const card = document.getElementById('flashcard');
+
+  let isDragging = false;
+  let startX = 0;
+  let currentX = 0;
+  let translateX = 0;
+  const swipeThreshold = 100; // Minimum drag distance (in pixels) to register a swipe
+
+  // Handle click on the card: if not dragging, flip the card.
+  function handleClick(e) {
+    // Prevent the click if a drag occurred.
+    if (!isDragging) {
+      card.classList.toggle('flipped');
+    }
   }
 
-  // Variables to record touch positions.
-  let touchstartX = 0;
-  let touchendX = 0;
-  const flashcard = document.getElementById('flashcard');
+  // --- Mouse Events for Dragging ---
+  wrapper.addEventListener('mousedown', function(e) {
+    isDragging = false;
+    startX = e.clientX;
+    wrapper.style.transition = "none"; // Disable transitions during drag
+  });
 
-  flashcard.addEventListener('touchstart', function(event) {
-    touchstartX = event.changedTouches[0].screenX;
-  }, false);
-
-  flashcard.addEventListener('touchend', function(event) {
-    touchendX = event.changedTouches[0].screenX;
-    handleSwipe();
-  }, false);
-
-  function handleSwipe() {
-    // Define a minimum swipe distance.
-    const swipeThreshold = 50;
-    if (touchendX < touchstartX - swipeThreshold) {
-      // Swiped left: mark as incorrect.
-      updateCard(false);
+  wrapper.addEventListener('mousemove', function(e) {
+    if (startX === 0) return;
+    currentX = e.clientX;
+    const dx = currentX - startX;
+    if (Math.abs(dx) > 5) {
+      isDragging = true;
     }
-    if (touchendX > touchstartX + swipeThreshold) {
-      // Swiped right: mark as correct.
+    if (isDragging) {
+      translateX = dx;
+      // Rotate a bit based on the drag distance.
+      const rotate = dx / 10;
+      wrapper.style.transform = `translateX(${dx}px) rotate(${rotate}deg)`;
+    }
+  });
+
+  wrapper.addEventListener('mouseup', function(e) {
+    endDrag();
+  });
+
+  wrapper.addEventListener('mouseleave', function(e) {
+    if (isDragging) {
+      endDrag();
+    }
+  });
+
+  function endDrag() {
+    if (!isDragging) {
+      // No drag detected, let the click handler handle the flip.
+      resetDrag();
+      return;
+    }
+    // Check if the card was dragged far enough to count as a swipe.
+    if (translateX > swipeThreshold) {
+      // Swipe right: mark as correct.
+      wrapper.style.transition = "transform 0.5s";
+      wrapper.style.transform = "translateX(1000px) rotate(45deg)";
       updateCard(true);
+      resetAfterSwipe();
+    } else if (translateX < -swipeThreshold) {
+      // Swipe left: mark as incorrect.
+      wrapper.style.transition = "transform 0.5s";
+      wrapper.style.transform = "translateX(-1000px) rotate(-45deg)";
+      updateCard(false);
+      resetAfterSwipe();
+    } else {
+      // Not enough drag; snap back to center.
+      wrapper.style.transition = "transform 0.3s";
+      wrapper.style.transform = "";
     }
+    resetDrag();
   }
 
-  // Placeholder function for updating card data.
+  function resetDrag() {
+    startX = 0;
+    isDragging = false;
+    translateX = 0;
+  }
+
+  // --- Touch Events for Mobile Devices ---
+  let touchStartX = 0;
+  let touchCurrentX = 0;
+  wrapper.addEventListener('touchstart', function(event) {
+    touchStartX = event.changedTouches[0].screenX;
+    wrapper.style.transition = "none";
+  }, false);
+
+  wrapper.addEventListener('touchmove', function(event) {
+    touchCurrentX = event.changedTouches[0].screenX;
+    const dx = touchCurrentX - touchStartX;
+    wrapper.style.transform = `translateX(${dx}px) rotate(${dx / 10}deg)`;
+  }, false);
+
+  wrapper.addEventListener('touchend', function(event) {
+    const dx = touchCurrentX - touchStartX;
+    if (Math.abs(dx) > swipeThreshold) {
+      if (dx > 0) {
+        wrapper.style.transition = "transform 0.5s";
+        wrapper.style.transform = "translateX(1000px) rotate(45deg)";
+        updateCard(true);
+      } else {
+        wrapper.style.transition = "transform 0.5s";
+        wrapper.style.transform = "translateX(-1000px) rotate(-45deg)";
+        updateCard(false);
+      }
+      resetAfterSwipe();
+    } else {
+      wrapper.style.transition = "transform 0.3s";
+      wrapper.style.transform = "";
+    }
+  }, false);
+
+  // Function to reset the card position and clear any flipped state after a swipe.
+  function resetAfterSwipe() {
+    setTimeout(() => {
+      // Reset the wrapper position.
+      wrapper.style.transition = "none";
+      wrapper.style.transform = "";
+      // Remove the flipped state so the new card shows the front.
+      card.classList.remove('flipped');
+      // Optionally, load the next card here.
+    }, 500); // Should match the swipe animation duration.
+  }
+
+  // Placeholder function to update card data on the backend.
   function updateCard(correct) {
     console.log("Card marked as", correct ? "correct" : "incorrect");
-    // Later, use fetch() or AJAX to send the card update to your server.
-    // For example:
+    // Here you would use fetch/AJAX to update the card data (e.g., seen count, correct count)
+    // Example:
     // fetch('/learning/update_card', {
     //   method: 'POST',
     //   headers: {'Content-Type': 'application/json'},
@@ -58,7 +157,7 @@
     // })
     // .then(response => response.json())
     // .then(data => {
-    //    // Load next card or update UI.
+    //   // Load next card or update UI as needed.
     // });
   }
 </script>
@@ -67,14 +166,20 @@
   /* Container perspective for 3D effect */
   .flashcard-container {
     perspective: 1000px;
-    margin-top: 100px;  /* Adjust if needed to clear the navbar */
+    margin-top: 100px; /* Adjust as needed to clear the fixed navbar */
+  }
+
+  /* The wrapper is the draggable container */
+  .flashcard-wrapper {
+    width: 300px;
+    height: 200px;
+    margin: 0 auto;
   }
 
   /* Flashcard styling */
   .flashcard {
-    width: 300px;
-    height: 200px;
-    margin: 0 auto;
+    width: 100%;
+    height: 100%;
     position: relative;
     transition: transform 0.6s;
     transform-style: preserve-3d;
@@ -86,7 +191,7 @@
     transform: rotateY(180deg);
   }
 
-  /* Front and back face styling */
+  /* Styling for the front and back faces */
   .flashcard .front,
   .flashcard .back {
     position: absolute;
@@ -102,7 +207,7 @@
     font-size: 24px;
   }
 
-  /* Hide the back until flipped */
+  /* The back face is rotated 180deg by default */
   .flashcard .back {
     transform: rotateY(180deg);
   }
