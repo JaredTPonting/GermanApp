@@ -1,23 +1,4 @@
-{% extends "base.html" %}
-{% block title %}Flash Cards{% endblock %}
-{% block content %}
-<div id="flashcard-container" class="flashcard-container">
-  <!-- This wrapper is used for dragging -->
-  <div id="flashcard-wrapper" class="flashcard-wrapper">
-    <!-- The inner card handles the flip animation -->
-    <div id="flashcard" class="flashcard" onclick="handleClick(event)">
-      <div class="front">
-        {{ card.german }}
-      </div>
-      <div class="back">
-        {{ card.translation }}
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-    // Get references to the wrapper and card elements.
+  // Get references to the wrapper and card elements.
   const wrapper = document.getElementById('flashcard-wrapper');
   const card = document.getElementById('flashcard');
   let currentCardId = {{ card.id }};
@@ -139,24 +120,18 @@ function loadNextCard() {
   fetch('/learning/random_card')
     .then(response => response.json())
     .then(data => {
-      // Ensure the card always starts with its front showing.
-      card.classList.remove('flipped');
-
-      // Update the card text with the new card content.
+      // Update the card text
       document.querySelector('.flashcard .front').innerText = data.german;
       document.querySelector('.flashcard .back').innerText = data.translation;
+      // Update the current card id
       currentCardId = data.id;
-
-      // Add the fade-in effect.
-      card.classList.add('fade-in');
-
-      // Remove the fade-in class once the animation completes.
-      card.addEventListener('animationend', function() {
-        card.classList.remove('fade-in');
-      }, { once: true }); // This ensures the listener is removed after it fires.
+      // Reset any inline styles from the previous swipe
+      document.getElementById('flashcard-wrapper').style.transition = "none";
+      document.getElementById('flashcard-wrapper').style.transform = "";
+      // Ensure the card shows the front side.
+      document.getElementById('flashcard').classList.remove('flipped');
     });
 }
-
 
   // Function to reset the card position and clear any flipped state after a swipe.
   function resetAfterSwipe() {
@@ -168,7 +143,6 @@ function loadNextCard() {
       card.classList.remove('flipped');
       // load the next card here.
       loadNextCard();
-      card.classList.add('fade-in');
     }, 500); // Should match the swipe animation duration.
   }
 
@@ -187,102 +161,3 @@ function loadNextCard() {
     //   // Load next card or update UI as needed.
     // });
   }
-</script>
-
-
-<style>
-
-  /* Container perspective for 3D effect */
-  .flashcard-container {
-    perspective: 1000px;
-    margin-top: 100px; /* Adjust as needed to clear the fixed navbar */
-  }
-
-  /* The wrapper is the draggable container */
-  .flashcard-wrapper {
-    width: 300px;
-    height: 200px;
-    margin: 0 auto;
-  }
-
-  /* Flashcard styling */
-/* Container for the flashcard with perspective and centered layout */
-.flashcard-container {
-  perspective: 1500px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: calc(100vh - 100px); /* Adjust to clear your fixed navbar */
-  padding: 20px;
-}
-
-/* Draggable wrapper for the card */
-.flashcard-wrapper {
-  width: 350px;
-  height: 250px;
-  position: relative;
-}
-
-/* Flashcard style */
-.flashcard {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  border-radius: 12px;
-  background-color: #ffffff;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-  transform-style: preserve-3d;
-  transition: transform 0.8s ease, opacity 0.5s ease;
-}
-
-/* Ensure card loads showing the front by default */
-.flashcard.flipped {
-  transform: rotateY(180deg);
-}
-
-/* Front and back faces */
-.flashcard .front,
-.flashcard .back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  backface-visibility: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.75rem;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-/* Front face styling: cool blue gradient */
-.flashcard .front {
-  background: linear-gradient(135deg, #e0f7fa, #80deea);
-  color: #004d40;
-}
-
-/* Back face styling: warm orange gradient */
-.flashcard .back {
-  background: linear-gradient(135deg, #fff3e0, #ffcc80);
-  color: #bf360c;
-  transform: rotateY(180deg);
-}
-
-/* Optional fade-in effect when loading a new card */
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-</style>
-{% endblock %}
