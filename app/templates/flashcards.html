@@ -7,10 +7,10 @@
     <!-- The inner card handles the flip animation -->
     <div id="flashcard" class="flashcard" onclick="handleClick(event)">
       <div class="front">
-        {{ card.german }}
+        {{ card.german_text }}
       </div>
       <div class="back">
-        {{ card.translation }}
+        {{ card.english_translation }}
       </div>
     </div>
   </div>
@@ -148,11 +148,11 @@ function loadNextCard() {
       currentCardId = data.id;
 
       // Add the fade-in effect.
-      card.classList.add('fade-in');
+      card.classList.add('fade-in', 'no-click');
 
       // Remove the fade-in class once the animation completes.
       card.addEventListener('animationend', function() {
-        card.classList.remove('fade-in');
+        card.classList.remove('fade-in', 'no-click');
       }, { once: true }); // This ensures the listener is removed after it fires.
     });
 }
@@ -267,6 +267,10 @@ function loadNextCard() {
   background: linear-gradient(135deg, #fff3e0, #ffcc80);
   color: #bf360c;
   transform: rotateY(180deg);
+}
+
+.no-click {
+  pointer-events: none;
 }
 
 /* Optional fade-in effect when loading a new card */
